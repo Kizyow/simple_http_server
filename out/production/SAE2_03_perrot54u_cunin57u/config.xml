@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<webconf>
-    <ort>80</ort>
-    <root>resources</root>
-    <index>false</index>
-    <accept>0.0.0.0/0</accept>
-    <reject>255.255.255.255/32</reject>
-</webconf>
