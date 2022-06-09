@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webconf>
-    <port>777</port>
+    <ort>80</ort>
     <root>resources</root>
     <index>false</index>
-    <accept>100.64.80.0/23</accept>
-    <reject>@IP/n</reject>
+    <accept>0.0.0.0/0</accept>
+    <reject>255.255.255.255/32</reject>
 </webconf>
