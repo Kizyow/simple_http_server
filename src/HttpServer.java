@@ -2,6 +2,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * Classe permettant de lancer un serveur HTTP
+ */
 public class HttpServer {
 
     public static void main(String[] args) {
