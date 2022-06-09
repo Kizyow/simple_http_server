@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webconf>
-    <ort>80</ort>
+    <port>80</port>
     <root>resources</root>
     <index>false</index>
     <accept>0.0.0.0/0</accept>
