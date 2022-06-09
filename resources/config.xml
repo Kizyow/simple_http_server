@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <webconf>
     <port>80</port>
-    <root>ressources</root>
+    <root>resources</root>
     <index>true</index>
     <accept>@IP/n</accept>
     <reject>@IP/n</reject>
