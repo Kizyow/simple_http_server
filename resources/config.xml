@@ -3,6 +3,6 @@
     <port>777</port>
     <root>resources</root>
     <index>false</index>
-    <accept>@IP/n</accept>
+    <accept>100.64.80.0/23</accept>
     <reject>@IP/n</reject>
 </webconf>

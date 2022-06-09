@@ -8,8 +8,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class HttpServer {
 
@@ -110,7 +112,54 @@ public class HttpServer {
 
             while (true) {
                 Socket socket = serverSocket.accept();
-                System.out.println("[SERVEUR] Connexion etablie (" + socket.getInetAddress() + ":" + socket.getPort() + ")");
+                System.out.println("[SERVEUR] Connexion etablie (" + socket.getLocalAddress() + ":" + socket.getPort() + ")");
+
+                byte[] addr = socket.getLocalAddress().getAddress();
+                int[] submask = new int[4];
+
+                int subnet = Integer.parseInt(httpData.getAccept().split("/")[1]);
+                for (int j = 0; j < 4; j++) {
+                    String s = "";
+                    for (int i = 0; i < 8; i++) {
+                        if (subnet > 0) {
+                            s += "1";
+                        } else {
+                            s += "0";
+                        }
+                        subnet--;
+                    }
+                    int t = Integer.parseInt(s, 2);
+                    submask[j] = t;
+                    System.out.println(submask[j]);
+                }
+
+                byte[] finale = new byte[]{(byte) (addr[0] & submask[0]), (byte) (addr[1] & submask[1]), (byte) (addr[2] & submask[2]), (byte) (addr[3] & submask[3])};
+                InetAddress aaaa = InetAddress.getByAddress(finale);
+
+                System.out.println(aaaa);
+
+                boolean truee = Arrays.equals(InetAddress.getByName(httpData.getAccept().split("/")[0]).getAddress(), finale);
+
+                if(!truee){
+                    try {
+
+                        PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+                        printWriter.println("HTTP/1.1 200 OK \n");
+                        printWriter.flush();
+                        printWriter.println("<html><body><h1>désolé chacal mais t'as pas la bonne IP</h1></body></html>");
+                        printWriter.flush();
+                        System.out.println("[SERVEUR] Renvoi de la requete");
+                        socket.close();
+                    } catch (FileNotFoundException e) {
+                        System.out.println("[SERVEUR] Requete non aboutie");
+                        socket.close();
+                    }
+                    continue;
+                }
+
+
+                System.out.println(Arrays.toString(socket.getInetAddress().getAddress()));
+
 
                 InputStreamReader isr = new InputStreamReader(socket.getInputStream());
                 BufferedReader br = new BufferedReader(isr);
@@ -120,14 +169,19 @@ public class HttpServer {
 
                 String url = request.split(" ")[1];
 
-                if (!httpData.hasIndex()) {
+                if (url.equalsIgnoreCase("/") && !httpData.hasIndex()) {
 
                     try {
 
                         PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
                         printWriter.println("HTTP/1.1 200 OK \n");
                         printWriter.flush();
-                        printWriter.println("<html><body><h1>pas d'index</h1></body></html>");
+                        File file = new File(httpData.getRoot());
+                        String azd = "<ul>";
+                        for (File f : file.listFiles()) {
+                            azd += "<li><a href=" + f.getName() + ">" + f.getName() + "</li>";
+                        }
+                        printWriter.println("<html><body><h1>Index of</h1>" + azd + "</body></html>");
                         printWriter.flush();
                         System.out.println("[SERVEUR] Renvoi de la requete");
                         socket.close();
