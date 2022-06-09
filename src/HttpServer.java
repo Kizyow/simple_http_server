@@ -37,7 +37,7 @@ public class HttpServer {
             return root;
         }
 
-        public boolean isIndex() {
+        public boolean hasIndex() {
             return index;
         }
 
@@ -70,7 +70,6 @@ public class HttpServer {
 
                     Element element = (Element) node;
 
-                    // get staff's attribute
                     int port = Integer.parseInt(element.getElementsByTagName("port").item(0).getTextContent());
                     String root = element.getElementsByTagName("root").item(0).getTextContent();
                     boolean index = Boolean.parseBoolean(element.getElementsByTagName("index").item(0).getTextContent());
@@ -120,25 +119,45 @@ public class HttpServer {
                 System.out.println(request);
 
                 String url = request.split(" ")[1];
-                if (url.equalsIgnoreCase("/")) {
-                    url = "/index.html";
+
+                if (!httpData.hasIndex()) {
+
+                    try {
+
+                        PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+                        printWriter.println("HTTP/1.1 200 OK \n");
+                        printWriter.flush();
+                        printWriter.println("<html><body><h1>pas d'index</h1></body></html>");
+                        printWriter.flush();
+                        System.out.println("[SERVEUR] Renvoi de la requete");
+                        socket.close();
+                    } catch (FileNotFoundException e) {
+                        System.out.println("[SERVEUR] Requete non aboutie");
+                        socket.close();
+                    }
+
+                } else {
+
+                    if (url.equalsIgnoreCase("/")) {
+                        url = "/index.html";
+                    }
+
+                    try {
+                        FileInputStream fis = new FileInputStream(httpData.getRoot() + url);
+                        byte[] file = fis.readAllBytes();
+
+                        PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+                        printWriter.println("HTTP/1.1 200 OK \n");
+                        printWriter.flush();
+                        socket.getOutputStream().write(file);
+                        System.out.println("[SERVEUR] Renvoi de la requete");
+                        socket.close();
+                    } catch (FileNotFoundException e) {
+                        System.out.println("[SERVEUR] Requete non aboutie");
+                        socket.close();
+                    }
+
                 }
-
-                try {
-                    FileInputStream fis = new FileInputStream(httpData.getRoot() + url);
-                    byte[] file = fis.readAllBytes();
-
-                    PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-                    printWriter.println("HTTP/1.1 200 OK \n");
-                    printWriter.flush();
-                    socket.getOutputStream().write(file);
-                    System.out.println("[SERVEUR] Renvoi de la requete");
-                    socket.close();
-                } catch (FileNotFoundException e) {
-                    System.out.println("[SERVEUR] Requete non aboutie");
-                    socket.close();
-                }
-
             }
 
         } catch (IOException e) {
