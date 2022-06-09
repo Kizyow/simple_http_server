@@ -35,6 +35,12 @@ public class HttpServer {
                 BufferedReader br = new BufferedReader(isr);
 
                 String request = br.readLine();
+
+                if(request == null || request.isBlank() || request.isEmpty()){
+                    System.out.println("[WebServer] Skipped empty request");
+                    continue;
+                }
+
                 String url = request.split(" ")[1];
 
                 System.out.println("[WebServer] Request: " + request);

@@ -4,5 +4,5 @@
     <root>resources</root>
     <index>false</index>
     <accept>0.0.0.0/0</accept>
-    <reject>0.0.0.0/0</reject>
+    <reject>255.255.255.255/32</reject>
 </webconf>
