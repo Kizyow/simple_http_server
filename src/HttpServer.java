@@ -43,19 +43,23 @@ public class HttpServer {
 
                     // On répond à la requete
                     PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
-                    printWriter.println("HTTP/1.1 200 OK \n");
-                    printWriter.flush();
+
 
                     boolean accept = AddressChecker.match(socket.getInetAddress(), xmlData.getAccept());
                     boolean deny = AddressChecker.match(socket.getInetAddress(), xmlData.getReject());
 
                     // on vérifie l'adresse IP
                     if (!accept || deny) {
+                        printWriter.println("HTTP/1.1 401 Unauthorized \n");
+                        printWriter.flush();
                         printWriter.println("<html><body><h1>Connection refused</h1><p>Your IP address is rejected</p></body></html>");
                         printWriter.flush();
 
-                    // on vérifie si c'est la racine
+                        // on vérifie si c'est la racine
                     } else if (url.equalsIgnoreCase("/")) {
+
+                        printWriter.println("HTTP/1.1 200 OK \n");
+                        printWriter.flush();
 
                         // s'il y a un index, le mettre par défaut
                         if (xmlData.hasIndex()) {
@@ -68,7 +72,7 @@ public class HttpServer {
                             socket.getOutputStream().write(file);
                             fis.close();
 
-                        // sinon, on génère nous-même l'index de la racine
+                            // sinon, on génère nous-même l'index de la racine
                         } else {
 
                             String htmlListFiles = "";
@@ -87,8 +91,11 @@ public class HttpServer {
 
                         }
 
-                    // si c'est une requete vers un fichier en particulier
+                        // si c'est une requete vers un fichier en particulier
                     } else {
+
+                        printWriter.println("HTTP/1.1 200 OK \n");
+                        printWriter.flush();
 
                         File file = new File(xmlData.getRoot() + url);
 
@@ -109,7 +116,7 @@ public class HttpServer {
                             printWriter.println("<html><body><h1>Index of " + url + "</h1>" + htmlListFiles + "</body></html>");
                             printWriter.flush();
 
-                        // sinon on envoie le fichier au client
+                            // sinon on envoie le fichier au client
                         } else {
 
                             FileInputStream fis = new FileInputStream(file);
