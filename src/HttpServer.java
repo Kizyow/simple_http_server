@@ -50,7 +50,6 @@ public class HttpServer {
                     // On répond à la requete
                     PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
 
-
                     boolean accept = AddressChecker.match(socket.getInetAddress(), xmlData.getAccept());
                     boolean deny = AddressChecker.match(socket.getInetAddress(), xmlData.getReject());
 
@@ -58,14 +57,11 @@ public class HttpServer {
                     if (!accept || deny) {
                         printWriter.println("HTTP/1.1 401 Unauthorized \n");
                         printWriter.flush();
-                        printWriter.println("<html><body><h1>Connection refused</h1><p>Your IP address is rejected</p></body></html>");
+                        printWriter.println("<html><body><h1>401 - Connection refused</h1><p>Your IP address is rejected</p></body></html>");
                         printWriter.flush();
 
                         // on vérifie si c'est la racine
                     } else if (url.equalsIgnoreCase("/")) {
-
-                        printWriter.println("HTTP/1.1 200 OK \n");
-                        printWriter.flush();
 
                         // s'il y a un index, le mettre par défaut
                         if (xmlData.hasIndex()) {
@@ -75,6 +71,8 @@ public class HttpServer {
                             FileInputStream fis = new FileInputStream(xmlData.getRoot() + url);
                             byte[] file = fis.readAllBytes();
 
+                            printWriter.println("HTTP/1.1 200 OK \n");
+                            printWriter.flush();
                             socket.getOutputStream().write(file);
                             fis.close();
 
@@ -92,6 +90,8 @@ public class HttpServer {
                                 }
                             }
 
+                            printWriter.println("HTTP/1.1 200 OK \n");
+                            printWriter.flush();
                             printWriter.println("<html><body><h1>Index of " + url + "</h1>" + htmlListFiles + "</body></html>");
                             printWriter.flush();
 
@@ -99,9 +99,6 @@ public class HttpServer {
 
                         // si c'est une requete vers un fichier en particulier
                     } else {
-
-                        printWriter.println("HTTP/1.1 200 OK \n");
-                        printWriter.flush();
 
                         File file = new File(xmlData.getRoot() + url);
 
@@ -119,6 +116,8 @@ public class HttpServer {
                                 }
                             }
 
+                            printWriter.println("HTTP/1.1 200 OK \n");
+                            printWriter.flush();
                             printWriter.println("<html><body><h1>Index of " + url + "</h1>" + htmlListFiles + "</body></html>");
                             printWriter.flush();
 
@@ -128,6 +127,8 @@ public class HttpServer {
                             FileInputStream fis = new FileInputStream(file);
                             byte[] fileArray = fis.readAllBytes();
 
+                            printWriter.println("HTTP/1.1 200 OK \n");
+                            printWriter.flush();
                             socket.getOutputStream().write(fileArray);
                             fis.close();
 
@@ -139,9 +140,15 @@ public class HttpServer {
                     System.out.println("[WebServer] Replied on the request");
                     socket.close();
 
+                    // on envoie un message d'erreur au client
                 } catch (FileNotFoundException e) {
-                    System.out.println("[WebServer] Couldn't reply because the file requested wasn't found");
+                    PrintWriter printWriter = new PrintWriter(socket.getOutputStream());
+                    printWriter.println("HTTP/1.1 404 Not Found \n");
+                    printWriter.flush();
+                    printWriter.println("<html><body><h1>404 - The requested file " + url + " wasn't found</h1></body></html>");
+                    printWriter.flush();
                     socket.close();
+                    System.out.println("[WebServer] Couldn't reply because the file requested wasn't found");
                 }
 
                 System.out.println("---------------------------------------------------------------------------------");
