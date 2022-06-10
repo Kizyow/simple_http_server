@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+### BEGIN INIT INFO
+# Provides:          myweb
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: serveur web
+### END INIT INFO
+
+SCRIPT="/usr/local/bin/myweb-script"
+SCRIPTNAME="myweb-script"
+
+if [ "$1" = "start" ]
+then
+    /bin/bash $SCRIPT
+    echo "Serveur demarré"
+elif [ "$1" = "stop" ]
+then
+    PID=$(echo `cat /var/run/myweb.pid`)
+    kill $PID
+    echo "Serveur arrêté"
+fi
+

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+PIDFILE="/var/run/myweb.pid"
+PASSWORD="iutncsae2122"
+
+if [ ! -f $PIDFILE ]
+then
+    echo $PASSWORD | sudo -S touch $PIDFILE
+    echo $PASSWORD | sudo -S chown etudiant:etudiant $PIDFILE
+    echo $PASSWORD | sudo -S chmod +rwx $PIDFILE
+fi
+   
+
+cd /usr/local/bin/myweb
+echo $PASSWORD | sudo -S java HttpServer /etc/myweb/myweb.conf & echo $! > $PIDFILE
