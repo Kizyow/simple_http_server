@@ -36,7 +36,7 @@ public class HttpServer {
 
                 String request = br.readLine();
 
-                if(request == null || request.isBlank() || request.isEmpty()){
+                if (request == null || request.isBlank() || request.isEmpty()) {
                     System.out.println("[WebServer] Skipped empty request");
                     continue;
                 }
@@ -62,19 +62,23 @@ public class HttpServer {
 
                         // on vérifie si c'est la racine
                     } else if (url.equalsIgnoreCase("/")) {
-
                         // s'il y a un index, le mettre par défaut
-                        if (xmlData.hasIndex()) {
+                        if (!xmlData.hasIndex()) {
 
-                            url = "/index.html";
 
-                            FileInputStream fis = new FileInputStream(xmlData.getRoot() + url);
-                            byte[] file = fis.readAllBytes();
-
-                            printWriter.println("HTTP/1.1 200 OK \n");
+                            printWriter.println("HTTP/1.1 401 Unauthorized \n");
                             printWriter.flush();
-                            socket.getOutputStream().write(file);
-                            fis.close();
+                            printWriter.println("<html><body><h1>401 - Request refused</h1><p>The index isn't allowed, you need to specify a URL file</p></body></html>");
+                            printWriter.flush();
+//                            url = "/index.html";
+
+//                            FileInputStream fis = new FileInputStream(xmlData.getRoot() + url);
+//                            byte[] file = fis.readAllBytes();
+//
+//                            printWriter.println("HTTP/1.1 200 OK \n");
+//                            printWriter.flush();
+//                            socket.getOutputStream().write(file);
+//                            fis.close();
 
                             // sinon, on génère nous-même l'index de la racine
                         } else {
@@ -105,21 +109,31 @@ public class HttpServer {
                         // on vérifie si c'est un dossier
                         if (file.isDirectory()) {
 
-                            // faire l'index du dossier
-                            String htmlListFiles = "";
-                            File[] listFiles = file.listFiles();
+                            if (!xmlData.hasIndex()) {
+                                printWriter.println("HTTP/1.1 401 Unauthorized \n");
+                                printWriter.flush();
+                                printWriter.println("<html><body><h1>401 - Request refused</h1><p>The index isn't allowed, you need to specify a URL file</p></body></html>");
+                                printWriter.flush();
+                            } else {
 
-                            if (listFiles != null) {
-                                htmlListFiles += "<ul>";
-                                for (File f : listFiles) {
-                                    htmlListFiles += "<li><a href=" + file.getName() + "/" + f.getName() + ">" + f.getName() + "</li>";
+                                // faire l'index du dossier
+                                String htmlListFiles = "";
+                                File[] listFiles = file.listFiles();
+
+                                htmlListFiles += "<a href=.>Go Back</br>";
+
+                                if (listFiles != null) {
+                                    htmlListFiles += "<ul>";
+                                    for (File f : listFiles) {
+                                        htmlListFiles += "<li><a href=" + file.getName() + "/" + f.getName() + ">" + f.getName() + "</li>";
+                                    }
                                 }
-                            }
 
-                            printWriter.println("HTTP/1.1 200 OK \n");
-                            printWriter.flush();
-                            printWriter.println("<html><body><h1>Index of " + url + "</h1>" + htmlListFiles + "</body></html>");
-                            printWriter.flush();
+                                printWriter.println("HTTP/1.1 200 OK \n");
+                                printWriter.flush();
+                                printWriter.println("<html><body><h1>Index of " + url + "</h1>" + htmlListFiles + "</body></html>");
+                                printWriter.flush();
+                            }
 
                             // sinon on envoie le fichier au client
                         } else {
