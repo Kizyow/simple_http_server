@@ -7,6 +7,10 @@ import java.net.Socket;
  */
 public class HttpServer {
 
+    /**
+     * Méthode main permettant de lance rle serveur web
+     * @param args Le chemin vers le fichier de configuration
+     */
     public static void main(String[] args) {
 
         XMLData xmlData = XMLData.empty();
